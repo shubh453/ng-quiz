@@ -1,0 +1,13 @@
+.quiz {
+    margin: 2em;
+    padding: 2em;
+    text-align: center; 
+}
+
+.option-list {
+    margin: 1em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+}

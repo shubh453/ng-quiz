@@ -1,0 +1,5 @@
+<quiz-category-card 
+    title="Test your English knowledge"
+    [categories]="(quizCategories$ | async)!"
+    (categorySelected)="navigate($event)">
+</quiz-category-card>

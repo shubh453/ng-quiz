@@ -1,0 +1,30 @@
+<div class="stepper-wrapper">
+  <div #scroller class="linear-stepper">
+    <ng-container *ngFor="let step of steps; let i = index">
+      <button
+        #stepbutton
+        [id]="setId('step-button', i)"
+        type="button"
+        mat-mini-fab
+        [color]="i <= currentIndex.getValue() ? 'primary' : 'accent'"
+        class="step-button"
+        [disabled]="!clickable"
+        (click)="changeStep(i)"
+      >
+        {{ i + 1 }}
+      </button>
+    </ng-container>
+  </div>
+  <div class="content-wrapper">
+    <ng-content></ng-content>
+  </div>
+  <div class="action-buttons">
+    <div *ngIf="!showNext"></div>
+    <button mat-fab color="primary" type="button" aria-label="Next button" *ngIf="showNext" (click)="nextStep($event)">
+        <mat-icon>arrow_forward_ios</mat-icon>
+      </button>
+    <button mat-fab color="primary" type="button" aria-label="Back button" *ngIf="showPrev" (click)="prevStep($event)">
+      <mat-icon>arrow_back_ios</mat-icon>
+    </button>
+  </div>
+</div>

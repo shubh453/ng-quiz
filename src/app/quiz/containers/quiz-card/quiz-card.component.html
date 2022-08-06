@@ -1,0 +1,12 @@
+<div class="quiz" *ngIf="quiz">
+    <form [formGroup]="form">
+        <h3>{{quiz.question}}</h3>
+        <mat-divider></mat-divider>
+        <mat-radio-group class="option-list" formControlName="option">
+            <ng-container *ngFor="let option of quiz.options">
+                <mat-radio-button [checked]="quiz.id === selectedAnswers.quizId && selectedAnswers.answer === option" style="margin:1em" value="{{option}}">
+                    {{option}}</mat-radio-button>
+            </ng-container>
+        </mat-radio-group>
+    </form>
+</div>

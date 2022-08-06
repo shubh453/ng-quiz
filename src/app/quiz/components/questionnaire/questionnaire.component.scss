@@ -1,0 +1,33 @@
+:host {
+    width: 60%;
+}
+
+.component-container {
+    height: 100%;
+    margin: 0 auto;
+}
+
+.card-header{ 
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+}
+
+.submit-button {
+    font-size: medium;
+    height: 50px;
+    margin-top: 10px;
+}
+
+@media screen and (max-width: 768px) {
+    :host {
+        width: 90%;
+    }
+
+    .component-container {
+        height: 100%;
+        display: flex;
+        align-items: center;
+    }
+    
+}
