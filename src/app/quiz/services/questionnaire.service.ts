@@ -5,7 +5,7 @@ import {
   HttpUrlGenerator,
 } from '@ngrx/data';
 import { Update } from '@ngrx/entity';
-import { Observable } from 'rxjs';
+import { merge, Observable } from 'rxjs';
 import { Questionnaire } from '../store/quiz.model';
 import { defaultDataServiceConfig, QuestionnaireFeatureKey } from '../store/store-keywords';
 
@@ -19,6 +19,10 @@ export class QuestionnaireResultService extends DefaultDataService<Questionnaire
   }
 
   override update(update: Update<Questionnaire>): Observable<Questionnaire> {
-    return this.http.put<Questionnaire>(`${defaultDataServiceConfig.root}/questionnaires/updateanswer/${update.id}`, update.changes)
+  
+    const markUpdate$ = this.http.patch<Questionnaire>(`${defaultDataServiceConfig.root}/questionnaires/updateanswer/${update.id}`, update.changes)
+    const statusUpdate$ = this.http.patch<Questionnaire>(`${defaultDataServiceConfig.root}/questionnaires/updatestatus/${update.id}`, 3)
+
+    return merge(markUpdate$, statusUpdate$)
   }
 }

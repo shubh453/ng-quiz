@@ -1,47 +1,21 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Quizzes, TestResult } from '../../store/quiz.model';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Time } from '../../models/timer-info';
+import { Grade, Result } from '../../store/quiz.model';
 
 @Component({
   selector: 'quiz-result',
   templateUrl: './result.component.html',
   styleUrls: ['./result.component.scss'],
 })
-export class ResultComponent implements OnInit {
-  @Input() result: TestResult | undefined | null;
-  @Input() quizzes: Quizzes | undefined | null;
-  @Input() completedOn!: Date;
-  @Input() completionTime!: string;
-  score!: number;
-  total!: number;
-  grade!: Grade;
+export class ResultComponent {
+  @Input() result: Result | undefined | null;
+  @Input() completedOn: Date | null | undefined;
+  @Input() completionTime!: Time | undefined | null;
+
   @Output() onRetake = new EventEmitter<boolean>();
 
-  ngOnInit(): void {
-    const { score, total, grade } = this.calculateReult();
-    this.score = score;
-    this.total = total;
-    this.grade = grade;
-  }
-
-  calculateReult(): { score: number; total: number; grade: Grade; } {
-    if (this.result && this.quizzes) {
-      let correctAnswerCount = 0;
-      this.quizzes.forEach((q) => {
-        if (this.result?.markedAnswer[q.id] === q.answer) {
-          correctAnswerCount++;
-        }
-      });
-      return {
-        score: correctAnswerCount,
-        total: this.quizzes.length,
-        grade:
-          correctAnswerCount / this.quizzes.length > 4
-            ? Grade.Passed
-            : Grade.Failed,
-      };
-    }
-
-    return { score: 0, total: 0, grade: Grade.Passed };
+  get isPassed(): boolean {
+    return this.result?.grade === Grade.Passed;
   }
 
   retake() {
@@ -49,7 +23,3 @@ export class ResultComponent implements OnInit {
   }
 }
 
-enum Grade {
-  Passed = 'Passed',
-  Failed = 'Failed',
-}

@@ -1,13 +1,13 @@
 export class TimerInfo {
   totalTime: string;
-  endTime: Date;
+  endTime: number;
   type: TimerOption;
   visualOptions: TimerVisualOption;
 
   constructor(
    {
       totalTime = '',
-      endTime = new Date(),
+      endTime = 0,
       type = TimerOption.Countdown,
       visualOptions = TimerVisualOption.Small
    }
@@ -29,4 +29,10 @@ export enum TimerOption {
   ShowFixedTime = 'fixed',
   Countdown = 'countdown',
   Clear = 'clear',
+}
+
+export interface Time {
+  hours: number;
+  minutes: number;
+  seconds: number;
 }

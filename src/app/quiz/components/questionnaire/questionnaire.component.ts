@@ -4,44 +4,54 @@ import {
   OnDestroy,
   OnInit,
 } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
+import {
+  EntityCollectionService,
+  EntityCollectionServiceFactory,
+} from '@ngrx/data';
 import { select, Store } from '@ngrx/store';
 import {
   catchError,
+  concat,
   filter,
   firstValueFrom,
   map,
   mergeMap,
   Observable,
+  Subject,
   Subscription,
   throwError,
 } from 'rxjs';
-import { QuestionnaireResultService } from '../../services/questionnaire.service';
+import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
+import {
+  Time,
+  TimerInfo,
+  TimerOption,
+  TimerVisualOption,
+} from '../../models/timer-info';
 import {
   answerSelected,
+  answerSubmitted,
   changeQuiz,
   loadFailed,
   loadSuccess,
+  timerCompleted,
 } from '../../store/actions/questionnaire.actions';
+import {
+  Questionnaire,
+  Quiz,
+  Quizzes,
+} from '../../store/quiz.model';
 import {
   allSelectedAnswers,
   currentQuiz,
   selectAllQuizzes,
   selectedAnswer,
-  selectResult,
+  selectError,
+  selectQuizCompletionStatus,
 } from '../../store/selectors/questionnaire.selector';
-import { Questionnaire, Quiz, Quizzes, TestResult } from '../../store/quiz.model';
-import {
-  TimerInfo,
-  TimerOption,
-  TimerVisualOption,
-} from '../../models/timer-info';
-import { MatDialog } from '@angular/material/dialog';
-import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
-import {
-  EntityCollectionService,
-  EntityCollectionServiceFactory,
-} from '@ngrx/data';
 import { QuestionnaireFeatureKey } from '../../store/store-keywords';
 
 @Component({
@@ -58,17 +68,20 @@ export class QuestionnaireComponent implements OnInit, OnDestroy {
   readonly currentQuiz$: Observable<Quiz | undefined>;
   readonly quizzes$: Observable<Quizzes | undefined>;
   readonly steps$: Observable<number[] | undefined>;
-  readonly currentSelectedAnswers$!: Observable<{ quizId: number; answer: string } | undefined>;
-  readonly allSelectedAnswers$!: Observable<{ quizId: number; answer: string }[] | undefined>;
-  readonly result$: Observable<TestResult | undefined>;
-
-  completedDate = new Date() ;
-  timerTime!: string;
+  readonly currentSelectedAnswers$!: Observable<
+    { quizId: number; answer: string } | undefined
+  >;
+  readonly allSelectedAnswers$!: Observable<
+    { quizId: number; answer: string }[] | undefined
+  >;
+  readonly isQuestionnaireCompleted$: Observable<boolean | undefined>;
+  readonly error$: Observable<Error | undefined>;
+  readonly stopTimer = new Subject<boolean>();
 
   timerInfo = new TimerInfo({
     type: TimerOption.Countdown,
     visualOptions: TimerVisualOption.Full,
-    endTime: new Date(new Date().getTime() + 30 * 60000),
+    endTime: 0.5 * 60000,
   });
 
   constructor(
@@ -76,10 +89,13 @@ export class QuestionnaireComponent implements OnInit, OnDestroy {
     private router: Router,
     private serviceFactory: EntityCollectionServiceFactory,
     private store: Store,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private _snackBar: MatSnackBar
   ) {
-    this.questionnaireService = serviceFactory.create<Questionnaire>(QuestionnaireFeatureKey);
-    this.result$ = this.questionnaireService.entities$.pipe(map(q=> q[0]?.testResult));
+    this.questionnaireService = serviceFactory.create<Questionnaire>(
+      QuestionnaireFeatureKey
+    );
+    
     this.currentQuiz$ = this.store.pipe(select(currentQuiz));
     this.quizzes$ = this.store.pipe(select(selectAllQuizzes));
     this.steps$ = this.quizzes$.pipe(map((q) => q?.map((c) => c.id)));
@@ -88,6 +104,18 @@ export class QuestionnaireComponent implements OnInit, OnDestroy {
       filter((val) => val !== undefined)
     );
     this.allSelectedAnswers$ = this.store.pipe(select(allSelectedAnswers));
+    this.isQuestionnaireCompleted$ = this.store.pipe(
+      select(selectQuizCompletionStatus)
+    );
+    this.error$ = concat(
+      this.store.pipe(
+        select(selectError),
+        filter((e) => !!e)
+      ),
+      this.questionnaireService.errors$.pipe(
+        map((e) => e.payload.data?.error?.error)
+      )
+    );
   }
 
   ngOnInit(): void {
@@ -110,7 +138,12 @@ export class QuestionnaireComponent implements OnInit, OnDestroy {
         this.questionnaire = s[0];
         this.store.dispatch(loadSuccess({ questionnaire: s[0] }));
       });
+
+    const errorSub = this.error$.subscribe((e) =>
+      this._snackBar.open(e?.message || 'Something went wrong', 'Close')
+    );
     this.subscriptions.add(subsxription);
+    this.subscriptions.add(errorSub);
   }
 
   saveAnswer(selectedValue: { id: number; answer: string }) {
@@ -130,16 +163,15 @@ export class QuestionnaireComponent implements OnInit, OnDestroy {
 
   submitAnswers() {
     let dialogref = this.dialog.open(DialogComponent, {
-      width: '250px',
+      width: '350px',
+      height: '150px',
     });
 
-    dialogref.afterClosed().subscribe((result) => {
-      if (result && this.questionnaire) {
-
+    dialogref.afterClosed().subscribe((dialogResult) => {
+      if (dialogResult && this.questionnaire) {
         setTimeout(async () => {
-
           const selectedAnswers = await firstValueFrom(
-            this.allSelectedAnswers$ 
+            this.allSelectedAnswers$
           );
           let result: { [key: number]: string } = {};
           selectedAnswers?.forEach((r) => (result[r.quizId] = r.answer));
@@ -151,12 +183,12 @@ export class QuestionnaireComponent implements OnInit, OnDestroy {
                 isPassed: false,
               },
             },
-          })
+          });
         });
-        
-        this.completedDate = new Date(Date.now());
-        // breaking the rules to mutate and preserve state in the component
-        this.questionnaire.isComplete = true;
+
+        this.stopTimer.next(true);
+        this.store.dispatch(answerSubmitted());
+        this.router.navigate(['/result']);
       }
     });
   }
@@ -171,15 +203,12 @@ export class QuestionnaireComponent implements OnInit, OnDestroy {
     });
   }
 
-  retakeTest() {
-
-  }
-
-  completeTimer(value: string) {
-    this.timerTime = value;
+  updateTime(time: Time) {
+    this.store.dispatch(timerCompleted({ time }));
   }
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+    this.stopTimer.unsubscribe();
   }
 }

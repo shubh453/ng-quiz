@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { QuestionnaireComponent } from './components/questionnaire/questionnaire.component';
+import { ResultPageComponent } from './components/result-page/result-page.component';
 import { WelcomeComponent } from './components/welcome/welcome.component';
 
 const routes: Routes = [
@@ -9,6 +10,9 @@ const routes: Routes = [
   },
   {
     path: 'questionnaire', component: QuestionnaireComponent
+  },
+  {
+    path: 'result', component: ResultPageComponent
   }
 ];
 

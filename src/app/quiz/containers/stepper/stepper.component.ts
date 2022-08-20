@@ -1,4 +1,15 @@
-import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, ViewChild, ViewChildren, ViewEncapsulation } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  QueryList,
+  ViewChildren,
+  ViewEncapsulation,
+} from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { BehaviorSubject, Subscription } from 'rxjs';
 
@@ -7,17 +18,16 @@ import { BehaviorSubject, Subscription } from 'rxjs';
   templateUrl: './stepper.component.html',
   styleUrls: ['./stepper.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
 })
 export class StepperComponent implements OnInit, OnDestroy {
-
   /* Array of the identifier in the steps */
-  @Input() steps! : number[];
-  @Input() clickable : boolean = true;
+  @Input() steps!: number[];
+  @Input() clickable: boolean = true;
   @Output() stepChange = new EventEmitter<number>();
   @ViewChildren('stepbutton') scroller!: QueryList<MatButton>;
 
-  indexSubscription$! : Subscription;
+  indexSubscription$!: Subscription;
   currentIndex = new BehaviorSubject<number>(0);
   showPrev = false;
   showNext = true;
@@ -37,7 +47,11 @@ export class StepperComponent implements OnInit, OnDestroy {
     if (index < this.steps.length) {
       this.updateStepAndEmit(index + 1);
     }
-    this.scroller.find(s => s._elementRef.nativeElement.id === `step-button-${index + 2}`)?._elementRef.nativeElement.scrollIntoView();
+    this.scroller
+      .find(
+        (s) => s._elementRef.nativeElement.id === `step-button-${index + 2}`
+      )
+      ?._elementRef.nativeElement.scrollIntoView();
   }
 
   prevStep(event: Event): void {
@@ -45,7 +59,11 @@ export class StepperComponent implements OnInit, OnDestroy {
     if (index > 0) {
       this.updateStepAndEmit(index - 1);
     }
-    this.scroller.find(s => s._elementRef.nativeElement.id === `step-button-${index - 2}`)?._elementRef.nativeElement.scrollIntoView();
+    this.scroller
+      .find(
+        (s) => s._elementRef.nativeElement.id === `step-button-${index - 2}`
+      )
+      ?._elementRef.nativeElement.scrollIntoView();
   }
 
   private updateStepAndEmit(index: number): void {
@@ -54,7 +72,7 @@ export class StepperComponent implements OnInit, OnDestroy {
   }
 
   private trackCurrentIndex(): void {
-    this.indexSubscription$ = this.currentIndex.subscribe(index => {
+    this.indexSubscription$ = this.currentIndex.subscribe((index) => {
       switch (index) {
         case 0:
           this.showPrev = false;
@@ -70,15 +88,13 @@ export class StepperComponent implements OnInit, OnDestroy {
           break;
       }
     });
-    
   }
 
   ngOnDestroy(): void {
-    this.indexSubscription$?.unsubscribe()
+    this.indexSubscription$?.unsubscribe();
   }
 
   setId(id: string, index: number) {
-    return `${id}-${index}`
+    return `${id}-${index}`;
   }
-
 }

@@ -1,9 +1,12 @@
+import { EntitySelectorsFactory } from "@ngrx/data";
 import { createFeatureSelector, createSelector } from "@ngrx/store";
+import { Questionnaire } from "../quiz.model";
 import { State } from "../quiz.state";
 import { QuestionnaireFeatureKey } from "../store-keywords";
 
 
 export const selectCurrentState = createFeatureSelector<State>(QuestionnaireFeatureKey);
+export const questionnaireEntitySelector = new EntitySelectorsFactory().create<Questionnaire>(QuestionnaireFeatureKey);
 
 export const currentQuiz = createSelector(
     selectCurrentState,
@@ -28,5 +31,26 @@ export const allSelectedAnswers = createSelector(
 
 export const selectResult = createSelector(
     selectCurrentState,
-    (state) => state.questionnaire?.testResult
+    (state) => state.questionnaire?.testResult 
 )
+
+export const selectQuizCompletionStatus = createSelector(
+    selectCurrentState,
+    (state) => state.isCompleted
+)
+
+export const selectError = createSelector(
+    selectCurrentState,
+    (state) => state.error
+)
+
+export const selectElapsedTime = createSelector(
+    selectCurrentState,
+    (state) => state.elapsedTime
+)
+
+export const selectCompletedDate = createSelector(
+    selectCurrentState,
+    (state) => state.completionDate
+)
+

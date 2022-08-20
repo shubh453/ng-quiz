@@ -8,6 +8,12 @@ export const initialState: State = {
   error: undefined,
   selectedAnswer: [],
   isCompleted: false,
+  elapsedTime: {
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+  },
+  completionDate: null
 };
 
 const questionnaireReducer = createReducer(
@@ -45,6 +51,11 @@ const questionnaireReducer = createReducer(
   on(QuestionnaireComponentActions.answerSubmitted, (state) => ({
     ...state,
     isCompleted: true,
+    completionDate: new Date()
+  })),
+  on(QuestionnaireComponentActions.timerCompleted, (state, {time}) => ({
+    ...state,
+    elapsedTime: time
   }))
 );
 

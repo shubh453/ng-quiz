@@ -1,4 +1,4 @@
-<mat-card>
+<!-- <mat-card >
     <mat-card-content>
         <p>
             Are you sure to submit the quiz answers?
@@ -8,4 +8,15 @@
         <button mat-raised-button color="primary" (click)="close(true)">Yes</button>
         <button mat-raised-button color="accent" (click)="close(false)">No</button>
     </mat-card-actions>
-</mat-card>
+</mat-card> -->
+<div style="display: flex; flex-direction: column; height: 100%; width: 100%;">
+    <div style=" height: 60%; width: 100%;">
+        <p>
+            Are you sure to submit the quiz answers?
+        </p>
+    </div>
+    <div style="display: flex; justify-content: space-between;">
+        <button mat-raised-button color="primary" (click)="close(true)">Yes</button>
+        <button mat-raised-button color="accent" (click)="close(false)">No</button>
+    </div>
+</div>

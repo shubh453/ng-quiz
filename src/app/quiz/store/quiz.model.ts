@@ -29,3 +29,14 @@ export interface TestResult {
   markedAnswer: { [key: number]: string; };
   isPassed: boolean;
 }
+
+export interface Result {
+  score: number;
+  total: number;
+  grade: Grade;
+}
+
+export enum Grade {
+  Passed = 'Passed',
+  Failed = 'Failed',
+}

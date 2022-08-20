@@ -1,7 +1,7 @@
-<div id="countdown">
+<div id="countdown" *ngIf="time$ | async as time">
     <ul>
-      <li><span>{{time.hours}} :</span>Hr</li>
-      <li><span>{{time.minutes}} :</span>Min</li>
-      <li><span>{{time.seconds}}</span>Sec</li>
+      <li><span>{{time.hours.toString().padStart(2, '0')}} :</span>Hr</li>
+      <li><span>{{time.minutes.toString().padStart(2, '0')}} :</span>Min</li>
+      <li><span>{{time.seconds.toString().padStart(2, '0')}}</span>Sec</li>
     </ul>
   </div>

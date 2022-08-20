@@ -1,16 +1,24 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
-  Output
+  Output,
 } from '@angular/core';
 import {
-  TimerInfo,
-  TimerOption,
-  TimerVisualOption,
-} from '../../models/timer-info';
+  finalize,
+  interval,
+  last,
+  Observable,
+  of,
+  Subject,
+  switchMap,
+  takeUntil,
+  takeWhile,
+  tap,
+  timer,
+} from 'rxjs';
+import { Time, TimerInfo } from '../../models/timer-info';
 
 @Component({
   selector: 'quiz-timer',
@@ -19,111 +27,48 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimerComponent {
+  public time$: Observable<Time> = of({ hours: 0, minutes: 0, seconds: 0 });
+  @Input('stop') stopTimer = new Subject<boolean>();
+  @Output() timerComplete = new EventEmitter<Time>();
+  elapsedTimeInSec = 0;
+  endDate = new Date();
   private _info!: TimerInfo;
-  public id: ReturnType<typeof setInterval> | undefined;
-  public time: {
-    hours: string;
-    minutes: string;
-    seconds: string;
-  } = { hours: '00', minutes: '00', seconds: '00' };
-
   @Input()
   set info(value: TimerInfo) {
     this._info = value;
-    this.checkType(this.info.type);
+    this.endDate = new Date(new Date().getTime() + this.info.endTime);
+    this.time$ = timer(0, 1000).pipe(
+      takeUntil(this.stopTimer),
+      takeWhile(t => Math.floor(this.getDistance(this.endDate) / 1000 ) >= 0),
+      tap(n => this.elapsedTimeInSec = n + 1),
+      switchMap(() => of(this.getRemainingTime(this.endDate))),
+      finalize(() => {
+        this.timerComplete.emit(
+          this.transformMilisecondToTime(this.elapsedTimeInSec * 1000)
+        )
+      })
+    );
   }
 
   get info(): TimerInfo {
     return this._info;
   }
 
-  @Input('stop') stopTimer = false;
-
-  @Output() onComplete = new EventEmitter<string>();
-
-  constructor(private ref: ChangeDetectorRef) { }
-
-  public checkType(timerOption: TimerOption): void {
-    if (timerOption === TimerOption.Countdown) {
-      this.startTimer();
-    } else if (timerOption === TimerOption.Clear) {
-      this.clear();
-    } else if (timerOption === TimerOption.ShowFixedTime) {
-      this.showFixedTime();
-    }
+  private getRemainingTime(endTime: Date): Time {
+    return this.transformMilisecondToTime(this.getDistance(endTime));
   }
 
-  public get isSmallDisplayType(): boolean {
-    return this.info.visualOptions === TimerVisualOption.Small;
+  private getDistance(endTime: Date) {
+    return endTime.getTime() - new Date().getTime();
   }
 
-  private startTimer(): void {
-    this.clearInterval();
-
-    this.id = setInterval(() => {
-      if(this.stopTimer) {
-        this.onComplete.emit(`${this.time.hours}:${this.time.minutes}:${this.time.seconds}`);
-        this.clearInterval();
-      }
-
-      var now = new Date().getTime();
-      var distance = this._info.endTime.getTime() - now;
-      this.transformMilisecondInString(distance);
-
-      if (distance < 0) {
-        this.clearInterval();
-        this.setTime();
-      }
-    }, 1000);
-  }
-
-  private clear(): void {
-    this.clearInterval();
-    this.setTime();
-  }
-
-  private showFixedTime(): void {
-    this.clearInterval();
-
-    let arr = this._info.totalTime.split(':');
-
-    let hours = arr[0];
-    let minutes = arr[1];
-    let seconds = arr[2];
-
-    this.setTime(hours, minutes, seconds);
-  }
-
-  private clearInterval(): void {
-    if (this.id) {
-      clearInterval(this.id);
-    }
-
-    this.id = undefined;
-  }
-
-  private transformMilisecondInString(miliseconds: number) {
+  private transformMilisecondToTime(miliseconds: number): Time {
     let hours = Math.floor(
       (miliseconds % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-    )
-      .toString()
-      .padStart(2, '0');
-    let minutes = Math.floor((miliseconds % (1000 * 60 * 60)) / (1000 * 60))
-      .toString()
-      .padStart(2, '0');
-    let seconds = Math.floor((miliseconds % (1000 * 60)) / 1000)
-      .toString()
-      .padStart(2, '0');
+    );
+    let minutes = Math.floor((miliseconds % (1000 * 60 * 60)) / (1000 * 60));
+    let seconds = Math.floor((miliseconds % (1000 * 60)) / 1000);
 
-    this.setTime(hours, minutes, seconds);
-  }
-
-  private setTime(
-    hours: string = '00',
-    minutes: string = '00',
-    seconds: string = '00'
-  ) {
-    this.time = { hours, minutes, seconds };
-    this.ref.detectChanges();
+    return { hours, minutes, seconds };
   }
 }

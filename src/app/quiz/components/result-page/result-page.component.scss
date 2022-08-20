@@ -1,0 +1,17 @@
+.component-container {
+    height: 100%;
+    margin: 0 auto;
+}
+
+@media screen and (max-width: 768px) {
+    :host {
+        width: 90%;
+    }
+
+    .component-container {
+        height: 100%;
+        display: flex;
+        align-items: center;
+    }
+    
+}

@@ -1,4 +1,5 @@
 import { createAction, props } from "@ngrx/store";
+import { Time } from "../../models/timer-info";
 import { Questionnaire, Quiz } from "../quiz.model";
 
 export const loadSuccess = createAction(
@@ -19,3 +20,7 @@ export const answerSelected = createAction(
 
 export const answerSubmitted = createAction(
                 '[Questionnarire Component] Quiz Answer Submitted');
+
+export const timerCompleted = createAction(
+                '[Questionnarire Component] Timer completed',
+                props<{time: Time}>());

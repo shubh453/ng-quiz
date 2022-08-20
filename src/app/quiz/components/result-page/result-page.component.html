@@ -1,0 +1,10 @@
+<div class="component-container">
+    <ng-container *ngIf="result$ | async">
+        <quiz-result 
+            [result]="getResult | async" 
+            [completedOn]="completedDate$ | async"
+            [completionTime]="timerTime$ | async" 
+            (onRetake)="retakeTest()">
+        </quiz-result>
+    </ng-container>
+</div>
