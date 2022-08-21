@@ -1,10 +1,25 @@
 <div class="component-container">
-    <ng-container *ngIf="result$ | async">
-        <quiz-result 
-            [result]="getResult | async" 
-            [completedOn]="completedDate$ | async"
-            [completionTime]="timerTime$ | async" 
-            (onRetake)="retakeTest()">
-        </quiz-result>
-    </ng-container>
+    <div>
+        <mat-sidenav-container>
+            <mat-sidenav [opened]="toggleNav" mode="over" style="width: 330px;">
+                <ng-container *ngIf="toggleNav">
+                    <result-analysis [markedAnswers]="markedAnswers$ | async"></result-analysis>
+                </ng-container>
+            </mat-sidenav>
+            <mat-sidenav-content>
+                <quiz-result [result]="result$ | async" [completedOn]="completedDate$ | async"
+                    [completionTime]="timerTime$ | async" (onRetake)="retakeTest()">
+                </quiz-result>
+            </mat-sidenav-content>
+        </mat-sidenav-container>
+    
+        <div style="display: inline-flex; width: 330px;">
+            <button type="button" mat-raised-button class="new-quiz-button" color="primary" routerLink="/">
+                New Quiz
+            </button>
+            <button type="button" mat-raised-button class="new-quiz-button" color="accent" (click)="openAnalysis()">
+                {{toggleNav ? 'Close Analysis' : 'Open Analysis'}}
+            </button>
+        </div>
+    </div>
 </div>

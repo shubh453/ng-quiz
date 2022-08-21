@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Time } from '../../models/timer-info';
-import { Grade, Result } from '../../store/quiz.model';
+import { Grade, TestResult } from '../../store/quiz.model';
 
 @Component({
   selector: 'quiz-result',
@@ -8,14 +8,14 @@ import { Grade, Result } from '../../store/quiz.model';
   styleUrls: ['./result.component.scss'],
 })
 export class ResultComponent {
-  @Input() result: Result | undefined | null;
+  @Input() result: TestResult | undefined | null;
   @Input() completedOn: Date | null | undefined;
   @Input() completionTime!: Time | undefined | null;
 
   @Output() onRetake = new EventEmitter<boolean>();
 
   get isPassed(): boolean {
-    return this.result?.grade === Grade.Passed;
+    return !!this.result?.isPassed;
   }
 
   retake() {

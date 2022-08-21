@@ -2,10 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import {
   DefaultDataService,
+  EntityCollectionServiceBase,
+  EntityCollectionServiceElementsFactory,
   HttpUrlGenerator,
 } from '@ngrx/data';
 import { Update } from '@ngrx/entity';
-import { merge, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Questionnaire } from '../store/quiz.model';
 import { defaultDataServiceConfig, QuestionnaireFeatureKey } from '../store/store-keywords';
 
@@ -19,10 +21,17 @@ export class QuestionnaireResultService extends DefaultDataService<Questionnaire
   }
 
   override update(update: Update<Questionnaire>): Observable<Questionnaire> {
-  
-    const markUpdate$ = this.http.patch<Questionnaire>(`${defaultDataServiceConfig.root}/questionnaires/updateanswer/${update.id}`, update.changes)
-    const statusUpdate$ = this.http.patch<Questionnaire>(`${defaultDataServiceConfig.root}/questionnaires/updatestatus/${update.id}`, 3)
+    return this.http.patch<Questionnaire>(`${defaultDataServiceConfig.root}/questionnaires/updateanswer/${update.id}`, update.changes)
+  }
+}
 
-    return merge(markUpdate$, statusUpdate$)
+@Injectable({
+  providedIn: 'root',
+})
+export class QuestionnaireService extends EntityCollectionServiceBase<Questionnaire> {
+
+  public categories$ = this.entities$;
+  constructor(serviceElementsFactory: EntityCollectionServiceElementsFactory) {
+    super(QuestionnaireFeatureKey, serviceElementsFactory);
   }
 }

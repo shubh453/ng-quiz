@@ -5,14 +5,14 @@
 
     <mat-card-content>
         <div *ngIf="isPassed;else failedtemplate">
-            <img src="/src/assets/passed.jpg" />
+            <img src="/assets/passed.jpg" width="300"/>
             <h3>
                 Congratulations!! You passed the quiz. 🎉
             </h3>
         </div>
 
         <ng-template #failedtemplate>
-            <img src="/src/assets/failed.jpg" />
+            <img src="/assets/failed.jpg" width="300"/>
             <h3>
                 Hey! Don't worry. You can do better. 😊
             </h3>
@@ -22,19 +22,10 @@
         <p>Time Spent: {{completionTime?.hours}} : {{completionTime?.minutes}} : {{completionTime?.seconds}}</p>
 
         <ul class="result-row">
-            <li><span>{{result?.score}}</span>Score</li>
-            <li><span>{{result?.total}}</span>Total</li>
-            <li><span>{{result?.grade}}</span>Grade</li>
+            <li><span>{{result?.score?.obtainedMarks}}</span>Score</li>
+            <li><span>{{result?.score?.total}}</span>Total</li>
+            <li><span>{{isPassed ? 'Passed' : 'Failed'}}</span>Grade</li>
         </ul>
 
     </mat-card-content>
-
-    <mat-card-actions>
-        <!-- <button mat-raised-button color="accent" (click)="retake()">
-            Retake
-        </button> -->
-        <button mat-raised-button color="primary" routerLink="/">
-            New Quiz
-        </button>
-    </mat-card-actions>
 </mat-card>

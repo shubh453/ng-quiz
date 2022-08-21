@@ -12,7 +12,8 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { MatDialogModule } from '@angular/material/dialog';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { DialogComponent } from './dialog/dialog.component';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSidenavModule } from '@angular/material/sidenav'
 
 export const modules = [
   CommonModule,
@@ -28,7 +29,8 @@ export const modules = [
   MatStepperModule,
   ScrollingModule,
   MatDialogModule,
-  MatSnackBarModule
+  MatSnackBarModule,
+  MatSidenavModule
 ];
 
 @NgModule({

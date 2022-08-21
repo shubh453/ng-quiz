@@ -16,6 +16,7 @@ import { EntityDataService } from '@ngrx/data';
 import { ResultComponent } from './containers/result/result.component';
 import { QuestionnaireFeatureKey } from './store/store-keywords';
 import { ResultPageComponent } from './components/result-page/result-page.component';
+import { ResultAnalysisComponent } from './containers/result-analysis/result-analysis.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,8 @@ import { ResultPageComponent } from './components/result-page/result-page.compon
     StepperComponent,
     TimerComponent,
     ResultComponent,
-    ResultPageComponent
+    ResultPageComponent,
+    ResultAnalysisComponent
   ],
   imports: [
     CommonModule,

@@ -1,0 +1,19 @@
+.correct-selection {
+    border: 2px solid #118e4b !important;
+}
+
+.wrong-selection {
+    border: 2px solid #8e1111 !important;
+}
+
+.list-option {
+    list-style: none;
+    padding: 0;
+}
+
+.list-option > li {
+    padding: 5px;
+    margin-left: 10px;
+    border-radius: 5px;
+    word-wrap: normal;
+}

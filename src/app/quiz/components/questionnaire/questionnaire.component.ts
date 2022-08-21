@@ -7,10 +7,6 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  EntityCollectionService,
-  EntityCollectionServiceFactory,
-} from '@ngrx/data';
 import { select, Store } from '@ngrx/store';
 import {
   catchError,
@@ -31,6 +27,7 @@ import {
   TimerOption,
   TimerVisualOption,
 } from '../../models/timer-info';
+import { QuestionnaireService } from '../../services/questionnaire.service';
 import {
   answerSelected,
   answerSubmitted,
@@ -52,7 +49,6 @@ import {
   selectError,
   selectQuizCompletionStatus,
 } from '../../store/selectors/questionnaire.selector';
-import { QuestionnaireFeatureKey } from '../../store/store-keywords';
 
 @Component({
   selector: 'questionnaire',
@@ -61,7 +57,6 @@ import { QuestionnaireFeatureKey } from '../../store/store-keywords';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionnaireComponent implements OnInit, OnDestroy {
-  private readonly questionnaireService: EntityCollectionService<Questionnaire>;
   private readonly subscriptions = new Subscription();
 
   questionnaire!: Questionnaire;
@@ -78,24 +73,16 @@ export class QuestionnaireComponent implements OnInit, OnDestroy {
   readonly error$: Observable<Error | undefined>;
   readonly stopTimer = new Subject<boolean>();
 
-  timerInfo = new TimerInfo({
-    type: TimerOption.Countdown,
-    visualOptions: TimerVisualOption.Full,
-    endTime: 0.5 * 60000,
-  });
+  timerInfo : TimerInfo | undefined;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private serviceFactory: EntityCollectionServiceFactory,
+    private questionnaireService: QuestionnaireService,
     private store: Store,
     public dialog: MatDialog,
     private _snackBar: MatSnackBar
   ) {
-    this.questionnaireService = serviceFactory.create<Questionnaire>(
-      QuestionnaireFeatureKey
-    );
-    
     this.currentQuiz$ = this.store.pipe(select(currentQuiz));
     this.quizzes$ = this.store.pipe(select(selectAllQuizzes));
     this.steps$ = this.quizzes$.pipe(map((q) => q?.map((c) => c.id)));
@@ -124,6 +111,11 @@ export class QuestionnaireComponent implements OnInit, OnDestroy {
         mergeMap((param) => {
           const category = param['category'];
           const questionCount = param['questioncount'];
+          this.timerInfo = new TimerInfo({
+            type: TimerOption.Countdown,
+            visualOptions: TimerVisualOption.Full,
+            endTime: questionCount * 60000,
+          });
           return this.questionnaireService.getWithQuery({
             category: category,
             questionCount: questionCount,
@@ -169,28 +161,33 @@ export class QuestionnaireComponent implements OnInit, OnDestroy {
 
     dialogref.afterClosed().subscribe((dialogResult) => {
       if (dialogResult && this.questionnaire) {
-        setTimeout(async () => {
-          const selectedAnswers = await firstValueFrom(
-            this.allSelectedAnswers$
-          );
-          let result: { [key: number]: string } = {};
-          selectedAnswers?.forEach((r) => (result[r.quizId] = r.answer));
-          this.questionnaireService.update({
-            ...this.questionnaire,
-            ...{
-              testResult: {
-                markedAnswer: result,
-                isPassed: false,
-              },
-            },
-          });
-        });
-
-        this.stopTimer.next(true);
-        this.store.dispatch(answerSubmitted());
-        this.router.navigate(['/result']);
+        this.submitAnswerInternal();
       }
     });
+  }
+
+  private submitAnswerInternal() {
+    setTimeout(async () => {
+      const selectedAnswers = await firstValueFrom(
+        this.allSelectedAnswers$
+      );
+      let result: { [key: number]: string; } = {};
+      selectedAnswers?.forEach((r) => (result[r.quizId] = r.answer));
+      this.questionnaireService.update({
+        ...this.questionnaire,
+        ...{
+          testResult: {
+            markedAnswer: result,
+            isPassed: false,
+            score: null
+          },
+        },
+      });
+    });
+
+    this.stopTimer.next(true);
+    this.store.dispatch(answerSubmitted());
+    this.router.navigate(['/result']);
   }
 
   updateCurrentQuiz(currentQuizId: number) {
@@ -205,6 +202,7 @@ export class QuestionnaireComponent implements OnInit, OnDestroy {
 
   updateTime(time: Time) {
     this.store.dispatch(timerCompleted({ time }));
+    this.submitAnswerInternal();
   }
 
   ngOnDestroy(): void {

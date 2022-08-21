@@ -17,6 +17,8 @@ export type UpdateQuizDto = Required<Pick<Quiz, 'id'>> &
 
 export type DeleteQuizDto = number;
 
+export type Quizmarked = Required<Pick<Quiz, 'id' | 'question' | 'options' | 'answer'>> & {selectedAnswer: string};
+
 export interface Questionnaire {
   id: number,
   category: string,
@@ -27,13 +29,13 @@ export interface Questionnaire {
 
 export interface TestResult {
   markedAnswer: { [key: number]: string; };
+  score: Score | null;
   isPassed: boolean;
 }
 
-export interface Result {
-  score: number;
+export interface Score {
+  obtainedMarks: number;
   total: number;
-  grade: Grade;
 }
 
 export enum Grade {

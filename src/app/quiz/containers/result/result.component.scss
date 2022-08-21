@@ -1,6 +1,7 @@
 #result {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
       Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      text-align: center;
   }
   
   li {
@@ -16,8 +17,10 @@
     display: block;
     font-size: 3em;
   }
-  
-  
+
+  .result-row {
+    padding: 0;
+  }
   @media all and (max-width: 768px) {
     li {
       font-size: calc(0.8em);

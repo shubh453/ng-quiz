@@ -7,8 +7,6 @@ import {
 } from '@angular/core';
 import {
   finalize,
-  interval,
-  last,
   Observable,
   of,
   Subject,
@@ -34,7 +32,11 @@ export class TimerComponent {
   endDate = new Date();
   private _info!: TimerInfo;
   @Input()
-  set info(value: TimerInfo) {
+  set info(value: TimerInfo | undefined) {
+    if(!value) {
+      return;
+    }
+
     this._info = value;
     this.endDate = new Date(new Date().getTime() + this.info.endTime);
     this.time$ = timer(0, 1000).pipe(

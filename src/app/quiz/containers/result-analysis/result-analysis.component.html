@@ -1,0 +1,15 @@
+<ng-container *ngFor="let quiz of markedAnswers; trackBy:trackBy">
+    <mat-card>
+        <mat-hint style="float: right; color: cadetblue;" >{{ quiz.answer === quiz.selectedAnswer ? '+1' : '0'}}</mat-hint>
+        <mat-card-content>
+            <h4>{{ quiz.question }}</h4>
+
+            <ul class="list-option">
+                <li *ngFor="let option of quiz.options"
+                    [ngClass]="getClass(quiz, option)">
+                    {{option}}
+                </li>
+            </ul>
+        </mat-card-content>
+    </mat-card>
+</ng-container>

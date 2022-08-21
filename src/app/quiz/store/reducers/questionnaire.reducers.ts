@@ -26,6 +26,10 @@ const questionnaireReducer = createReducer(
       questionnaire.quizzes.map((q) => {
         return  { quizId: q.id, answer: ''};
       }),
+    isCompleted: false,
+    elapsedTime: {hours: 0, minutes: 0, seconds: 0},
+    completionDate: null,
+    error: undefined
   })),
   on(QuestionnaireComponentActions.loadFailed, (state, { error }) => ({
     ...state,

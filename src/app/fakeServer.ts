@@ -119,7 +119,8 @@ const questionnaire: Record<string, Questionnaire> = {
       ],
       testResult: {
         markedAnswer: {},
-        isPassed: false
+        isPassed: false,
+        score: null
       }
   },
   'synonyms': {
@@ -151,7 +152,8 @@ const questionnaire: Record<string, Questionnaire> = {
     ],
     testResult: {
       markedAnswer: {},
-      isPassed: false
+      isPassed: false,
+      score: null
     }
   }
 };
