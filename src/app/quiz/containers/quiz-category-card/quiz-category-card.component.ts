@@ -21,7 +21,7 @@ export class QuizCategoryCardComponent {
     numberOfQuestion: 10,
   };
 
-  numberOfQuestions = [5, 10, 15, 20, 25];
+  numberOfQuestions = [10, 20, 30, 40, 50];
 
   onStart() {
     if (
