@@ -114,7 +114,7 @@ export class QuestionnaireComponent implements OnInit, OnDestroy {
           this.timerInfo = new TimerInfo({
             type: TimerOption.Countdown,
             visualOptions: TimerVisualOption.Full,
-            endTime: questionCount * 60000,
+            endTime: questionCount * 30000,
           });
           return this.questionnaireService.getWithQuery({
             category: category,
